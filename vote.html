@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vote counted | The Weekly Weekender</title>
+<meta name="robots" content="noindex">
+</head>
+<body style="margin:0;padding:0;background-color:#f4f1ea;font-family:Helvetica,Arial,sans-serif;">
+<!-- ============================================================
+  WOULD YOU RATHER - vote recorder + confirmation
+  Home Team Prescott
+
+  Lives here rather than in a Go High Level funnel page so it can be
+  updated by pushing a commit, instead of Ben pasting HTML into GHL
+  every time a word changes.
+
+  WHAT IT DOES
+  Reads ?wyr=<slug>, silently posts that slug to a Google Form, and tells
+  the visitor their vote landed. Truly anonymous: nothing typed, no
+  sign-in, no contact created. Anyone can vote, subscriber or not.
+
+  WHY GOOGLE FORMS
+  GHL trigger links only tag contacts GHL already recognises, so a
+  stranger arriving from social records nothing. A Google Form with
+  "collect email" off and "limit to 1 response" off accepts a completely
+  anonymous submission, and the responses are readable, which is what
+  produces next week's percentages.
+
+  The POST is mode:"no-cors" - the browser will not let us read Google's
+  reply cross-origin. That is fine and expected: fire and forget. It also
+  means this page can never truly confirm the write, so the weekly count
+  is read from the responses sheet, never from anything here.
+============================================================= -->
+<div style="max-width:600px;margin:0 auto;padding:40px 16px;">
+  <div style="background-color:#ffffff;border:1px solid #e2ddd0;border-radius:8px;overflow:hidden;">
+
+    <div style="background-color:#0e5e5e;padding:28px 32px;text-align:center;">
+      <div style="color:#e8c45a;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">The Weekly Weekender</div>
+      <div style="color:#ffffff;font-size:26px;font-weight:bold;padding-top:8px;line-height:1.25;">Got it. Vote counted.</div>
+    </div>
+
+    <div style="padding:32px;">
+      <div style="background-color:#f7f4ec;border-radius:8px;padding:20px 22px;">
+        <div style="color:#8a8071;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;">You picked</div>
+        <div id="wyr-label" style="color:#0e5e5e;font-size:19px;font-weight:bold;padding-top:8px;line-height:1.35;">Your answer is in</div>
+      </div>
+
+      <div style="color:#2d2d2d;font-size:15px;line-height:1.65;padding-top:24px;">
+        We are publishing what Prescott picked in next Thursday's Weekender. No email address needed, nothing to fill out. Just open it and see whether you were with the majority.
+      </div>
+
+      <div style="color:#666666;font-size:14px;line-height:1.6;padding-top:14px;">
+        That is the whole thing. Close this tab and head back to the Weekender. There is still a weekend in there.
+      </div>
+    </div>
+
+    <div style="border-top:1px solid #eeeae0;padding:20px 32px;">
+      <div style="color:#0e5e5e;font-size:14px;font-weight:bold;">Ben &amp; Erin</div>
+      <div style="color:#666666;font-size:13px;padding-top:2px;">Home Team Prescott &bull; Realty One Group Mountain Desert</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:#8a8071;font-size:12px;padding-top:18px;">
+    We didn't realize we were making memories; we just knew we were having fun.
+  </div>
+</div>
+
+<script>
+(function () {
+  var FORM = "https://docs.google.com/forms/d/e/1FAIpQLScI4SC9GiFOgBwNSN8raCjtEPSTnpycFPpDtE9UircQUdYfCA/formResponse";
+  var FIELD = "entry.284570812";
+
+  // Generated from wyr-questions/<issue>.json. Rebuilt each week.
+  var ANSWERS = {
+    "hike":    "Hike first, then a breakfast big enough that someone else drives home",
+    "patio":   "Patio, something cold, no particular agenda",
+    "drive":   "In the truck by nine, somewhere an hour away",
+    "nothing": "Absolutely nothing. And proud of it"
+  };
+
+  var slug = null;
+  try { slug = new URLSearchParams(location.search).get("wyr"); } catch (e) {}
+  if (slug) slug = String(slug).toLowerCase();
+
+  // Only ever record a slug we recognise. Without this, anything appended to
+  // the URL would land in the responses sheet and pollute the count.
+  if (slug && Object.prototype.hasOwnProperty.call(ANSWERS, slug)) {
+    document.getElementById("wyr-label").textContent = ANSWERS[slug];
+    try {
+      var body = new URLSearchParams();
+      body.append(FIELD, slug);
+      fetch(FORM, { method: "POST", mode: "no-cors", body: body });
+    } catch (e) {
+      // Never let a failed write break the page. The visitor still gets
+      // their confirmation; the vote is simply lost, which is the right
+      // trade against showing them an error for something they cannot fix.
+    }
+  }
+})();
+</script>
+</body>
+</html>
