@@ -35,7 +35,12 @@
 <div style="max-width:600px;margin:0 auto;padding:40px 16px;">
   <div style="background-color:#ffffff;border:1px solid #e2ddd0;border-radius:8px;overflow:hidden;">
 
-    <div style="background-color:#0e5e5e;padding:28px 32px;text-align:center;">
+    <div style="position:relative;background-color:#0e5e5e;padding:28px 32px;text-align:center;">
+      <!-- The href is the no-JavaScript fallback: it goes somewhere useful on
+           its own. The script below only upgrades it to "close the tab". -->
+      <a href="https://home-team-prescott.github.io/weekender/" id="wyr-close"
+         aria-label="Close and go back to the Weekender"
+         style="position:absolute;top:8px;right:10px;width:40px;height:40px;line-height:40px;text-align:center;color:#9ecfca;font-size:26px;font-weight:bold;text-decoration:none;border-radius:20px;">&times;</a>
       <div style="color:#e8c45a;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">The Weekly Weekender</div>
       <div style="color:#ffffff;font-size:26px;font-weight:bold;padding-top:8px;line-height:1.25;">Got it. Vote counted.</div>
     </div>
@@ -51,7 +56,7 @@
       </div>
 
       <div style="color:#666666;font-size:14px;line-height:1.6;padding-top:14px;">
-        That is the whole thing. Close this tab and head back to the Weekender. There is still a weekend in there.
+        That is the whole thing. <a href="https://home-team-prescott.github.io/weekender/" id="wyr-back" style="color:#0e5e5e;font-weight:bold;">Head back to the Weekender</a> &mdash; there is still a weekend in there.
       </div>
     </div>
 
@@ -97,6 +102,38 @@
       // trade against showing them an error for something they cannot fix.
     }
   }
+
+  // ------------------------------------------------------------ close out
+  // Ben, 2026-08-22: readers should not have to reach for the browser back
+  // button to get out of here.
+  //
+  // A page cannot close a tab it did not open, and an email link almost
+  // always opens a fresh tab with no opener, so window.close() is refused
+  // more often than not. Rather than pretend otherwise, this tries to close,
+  // then checks whether it actually worked, in this order:
+  //
+  //   1. window.close()          works when the tab has an opener
+  //   2. history.back()          works when the link opened in place
+  //   3. the public web edition  always works
+  //
+  // Every path lands the reader somewhere real. Both anchors carry the step-3
+  // URL as their href, so this still behaves if the script never runs.
+  var HOME = "https://home-team-prescott.github.io/weekender/";
+
+  function closeOut(e) {
+    if (e) e.preventDefault();
+    try { window.close(); } catch (err) {}
+    setTimeout(function () {
+      // Still running, so the close was refused.
+      if (history.length > 1) { try { history.back(); } catch (err) {} }
+      setTimeout(function () { location.href = HOME; }, 400);
+    }, 200);
+  }
+
+  var x = document.getElementById("wyr-close");
+  if (x) x.addEventListener("click", closeOut);
+  var b = document.getElementById("wyr-back");
+  if (b) b.addEventListener("click", closeOut);
 })();
 </script>
 </body>
