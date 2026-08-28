@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Quad Cities Weekender - Aug 27 to Sep 2, 2026 | Home Team Prescott</title>
+<title>The Quad Cities Weekender - August 27 - September 2, 2026 | Home Team Prescott</title>
 <meta name="description" content="Everything worth doing in Prescott, Prescott Valley, Chino Valley and Dewey-Humboldt this week. Live music, markets, kids stuff, and one question we want your answer to.">
-<meta property="og:title" content="The Quad Cities Weekender - Aug 27 to Sep 2">
-<meta property="og:description" content="Tracy Lawrence at the Findlay, the 25th Prescott Jazz Summit, and six bands within walking distance on Friday.">
+<meta property="og:title" content="The Quad Cities Weekender - August 27 - September 2, 2026">
+<meta property="og:description" content="Tracy Lawrence is at the Findlay tonight, and downtown is hosting the twenty-fifth Prescott Jazz Summit. Friday alone has six bands playing within walking distance of each other.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://home-team-prescott.github.io/weekender/">
 <meta property="og:site_name" content="Home Team Prescott">
@@ -647,5 +647,94 @@
   </tr>
 </table>
 
+
+<div id="wyr-modal" hidden role="dialog" aria-modal="true" aria-labelledby="wyr-h">
+  <div id="wyr-scrim"></div>
+  <div id="wyr-box">
+    <button id="wyr-x" type="button" aria-label="Close">&times;</button>
+    <div id="wyr-h">Thanks. Vote counted.</div>
+    <div id="wyr-a"></div>
+    <div id="wyr-q"></div>
+    <button id="wyr-back" type="button">Back to the Weekender</button>
+  </div>
+</div>
+<style>
+  #wyr-modal[hidden]{display:none}
+  #wyr-scrim{position:fixed;inset:0;background:rgba(14,45,45,.55);z-index:9998}
+  #wyr-box{position:fixed;z-index:9999;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:min(92vw,420px);background:#fffdf7;border-radius:12px;padding:30px 26px 24px;
+    box-shadow:0 18px 50px rgba(0,0,0,.3);text-align:center;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+  #wyr-x{position:absolute;top:8px;right:12px;border:0;background:none;font-size:26px;
+    line-height:1;color:#8a8a8a;cursor:pointer;padding:4px 8px}
+  #wyr-x:hover{color:#0e5e5e}
+  #wyr-h{color:#0e5e5e;font-size:19px;font-weight:700}
+  #wyr-a{color:#1d1d1d;font-size:16px;line-height:1.45;padding-top:12px}
+  #wyr-q{color:#b8860b;font-size:14px;font-style:italic;line-height:1.5;padding-top:10px}
+  #wyr-back{margin-top:20px;background:#0e5e5e;color:#fff;border:0;border-radius:6px;
+    padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+  #wyr-back:hover{background:#0b4c4c}
+</style>
+<script>
+(function () {
+  var ANSWERS = {
+    "square": "Courthouse Square and the Row",
+    "lake": "Watson Lake and the Dells",
+    "daytrip": "Out of town entirely, make a day of it",
+    "backporch": "Back porch, cooler, nowhere to be"
+  };
+  var QUIPS   = {
+    "square": "The classic, and it still works.",
+    "lake": "Nothing else looks like it. That is the point.",
+    "daytrip": "Jerome, Sedona, somewhere with switchbacks.",
+    "backporch": "Honestly the most persuasive argument there is."
+  };
+  var FORM  = "https://docs.google.com/forms/d/e/1FAIpQLScI4SC9GiFOgBwNSN8raCjtEPSTnpycFPpDtE9UircQUdYfCA/formResponse";
+  var FIELD = "entry.284570812";
+
+  var modal = document.getElementById('wyr-modal');
+  if (!modal) return;
+  var box = document.getElementById('wyr-box');
+  var lastFocus = null;
+
+  function open(slug) {
+    document.getElementById('wyr-a').textContent = ANSWERS[slug] || '';
+    document.getElementById('wyr-q').textContent = QUIPS[slug] || '';
+    lastFocus = document.activeElement;
+    modal.hidden = false;
+    // No scroll lock and no navigation, so the page stays exactly where it
+    // was. That is the whole point of doing this here instead of on vote.html.
+    document.getElementById('wyr-x').focus();
+  }
+  function close() {
+    modal.hidden = true;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  document.getElementById('wyr-x').addEventListener('click', close);
+  document.getElementById('wyr-back').addEventListener('click', close);
+  document.getElementById('wyr-scrim').addEventListener('click', close);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !modal.hidden) close();
+  });
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href*="vote.html?wyr="]') : null;
+    if (!a) return;
+    var slug = (a.href.split('wyr=')[1] || '').split(/[&#]/)[0];
+    if (!ANSWERS.hasOwnProperty(slug)) return;   // unknown slug: let the link work normally
+    e.preventDefault();
+    try {
+      var body = new URLSearchParams();
+      body.append(FIELD, slug);
+      fetch(FORM, { method: 'POST', mode: 'no-cors', body: body });
+    } catch (err) {
+      // A failed write must never cost the reader their confirmation. The vote
+      // is lost, which beats showing an error they cannot do anything about.
+    }
+    open(slug);
+  });
+})();
+</script>
 </body>
 </html>
