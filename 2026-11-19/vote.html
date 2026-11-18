@@ -42,7 +42,7 @@
          aria-label="Close and go back to the Weekender"
          style="position:absolute;top:8px;right:10px;width:40px;height:40px;line-height:40px;text-align:center;color:#9ecfca;font-size:26px;font-weight:bold;text-decoration:none;border-radius:20px;">&times;</a>
       <div style="color:#e8c45a;font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;">The Weekly Weekender</div>
-      <div style="color:#ffffff;font-size:26px;font-weight:bold;padding-top:8px;line-height:1.25;">Got it. Vote counted.</div>
+      <div style="color:#ffffff;font-size:26px;font-weight:bold;padding-top:8px;line-height:1.25;" id="wyr-head">Thanks for stopping by.</div>
     </div>
 
     <div style="padding:32px;">
@@ -95,12 +95,18 @@
 
   var params = null;
   try { params = new URLSearchParams(location.search); } catch (e) {}
-  var slug = params ? params.get("wyr") : null;
-  if (slug) slug = String(slug).toLowerCase().trim();
-  var letter = params ? String(params.get("o") || "").toUpperCase().trim() : "";
+  // Tolerate links a mail tracker or a copy-paste has mangled (review 2, 2026-11-18):
+  // "?wyr=cattle%26o%3DD" arrives as wyr="cattle&o=D", and "?wyr=cattle." gains a stop.
+  // So take the leading answer code, and look for the letter in either place.
+  var raw = params ? String(params.get("wyr") || "") : "";
+  var lead = raw.toLowerCase().trim().match(/^[a-z0-9][a-z0-9_-]{0,31}/);
+  var slug = lead ? lead[0] : null;
+  var inner = raw.match(/[&?]o=([A-Da-d])\b/);
+  var letter = params ? String(params.get("o") || (inner ? inner[1] : "")).toUpperCase().trim() : "";
   var label = /^[A-D]$/.test(letter) ? "Choice " + letter + ". Your guess is locked in." : "";
 
   if (slug && SLUG_OK.test(slug)) {
+    document.getElementById("wyr-head").textContent = "Got it. Vote counted.";
     document.getElementById("wyr-label").textContent = label || "Your guess is locked in";
     try {
       var body = new URLSearchParams();
